@@ -129,13 +129,13 @@
         .back-dash-btn:hover { background: #487eb0; }
 
         .board-wrapper {
-            position: relative; width: 100%; max-width: 380px; margin: 0 auto; background: #1e2736; padding: 6px;
+            position: relative; width: 100%; max-width: 380px; margin: 0 auto; background: #1e2736; padding: 8px;
             border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
         #board { width: 100%; }
         #arrow-canvas {
-            position: absolute; top: 6px; left: 6px;
-            width: calc(100% - 12px); height: calc(100% - 12px);
+            position: absolute; top: 8px; left: 8px;
+            width: calc(100% - 16px); height: calc(100% - 16px);
             pointer-events: none; z-index: 10;
         }
 
@@ -429,7 +429,7 @@
                 let lastDate = appData.lastLoginDate;
                 
                 if (lastDate === today) {
-                    // نفس اليوم -> لا تتغير الشعلة
+                    // نفس اليوم
                 } else {
                     let lastDateObj = new Date(lastDate);
                     let currentDateObj = new Date(today);
@@ -460,7 +460,7 @@
             document.getElementById('headerStreakNum').innerText = "🔥 " + appData.streak;
             document.getElementById('streakCountBig').innerText = appData.streak + " Day Streak";
             
-            let totalOpenings = 7; // إجمالي الافتتاحيات الآن 7
+            let totalOpenings = 7;
             let completedCount = appData.completedOpenings.length;
             let percent = (completedCount / totalOpenings) * 100;
             document.getElementById('rankProgressBar').style.width = percent + "%";
@@ -513,6 +513,7 @@
         var currentStep = 0;
         var currentLine = null;
         var isFoundationMode = false;
+        var pendingArrow = null;
 
         var openings = {
             italian: {
@@ -650,7 +651,6 @@
             currentLine = openings[key];
             game.reset();
             
-            // تحديد اتجاه الرقعة حسب كون الافتتاحية للأبيض أو الأسود
             if (['sicilian', 'caroKann', 'kingsIndian'].includes(key)) {
                 board.orientation('black');
             } else {
@@ -687,9 +687,9 @@
             clearArrows();
             setTimeout(() => {
                 pieceData.arrows.forEach(arr => {
-                    drawArrow(arr.from, arr.to, "#2ed573", 4);
+                    drawArrow(arr.from, arr.to, "#2ed573", 4, true);
                 });
-            }, 200);
+            }, 300);
         }
 
         function closeOpeningGame() {
@@ -708,8 +708,8 @@
                     `الخطوة (${currentStep + 1} من ${currentLine.steps.length}): ` + step.hint;
                 
                 setTimeout(() => {
-                    drawArrow(step.from, step.to, "#2ed573", 4);
-                }, 150);
+                    drawArrow(step.from, step.to, "#2ed573", 4, false);
+                }, 250);
             } else {
                 document.getElementById('instructionText').innerText = "🏆 كفو يا بطل! أتممت هذه الافتتاحية بنجاح تام وتم حفظ التقدم.";
                 clearArrows();
@@ -722,48 +722,61 @@
             }
         }
 
-        function drawArrow(fromSq, toSq, color, width) {
-            var canvas = document.getElementById('arrow-canvas');
-            if(!canvas) return;
-            var ctx = canvas.getContext('2d');
-            
-            canvas.width = document.getElementById('board').clientWidth;
-            canvas.height = document.getElementById('board').clientHeight;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            var sqSize = canvas.width / 8;
-            
-            function getCoords(sq) {
-                var file = sq.charCodeAt(0) - 97;
-                var rank = 8 - parseInt(sq[1]);
-                if (board.orientation() === 'black') {
-                    file = 7 - file;
-                    rank = 7 - rank;
+        function drawArrow(fromSq, toSq, color, width, isMulti = false) {
+            pendingArrow = { fromSq, toSq, color, width, isMulti };
+            setTimeout(() => {
+                var canvas = document.getElementById('arrow-canvas');
+                if(!canvas) return;
+                var boardEl = document.getElementById('board');
+                if(!boardEl) return;
+                
+                var widthPx = boardEl.clientWidth;
+                var heightPx = boardEl.clientHeight;
+                if(widthPx === 0) return;
+
+                canvas.width = widthPx;
+                canvas.height = heightPx;
+                
+                var ctx = canvas.getContext('2d');
+                if(!isMulti) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                 }
-                return { x: (file + 0.5) * sqSize, y: (rank + 0.5) * sqSize };
-            }
+                
+                var sqSize = canvas.width / 8;
+                
+                function getCoords(sq) {
+                    var file = sq.charCodeAt(0) - 97;
+                    var rank = 8 - parseInt(sq[1]);
+                    if (board.orientation() === 'black') {
+                        file = 7 - file;
+                        rank = 7 - rank;
+                    }
+                    return { x: (file + 0.5) * sqSize, y: (rank + 0.5) * sqSize };
+                }
 
-            var start = getCoords(fromSq);
-            var end = getCoords(toSq);
+                var start = getCoords(fromSq);
+                var end = getCoords(toSq);
 
-            ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.lineCap = 'round';
-            ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(end.x, end.y);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.lineCap = 'round';
+                ctx.stroke();
 
-            var angle = Math.atan2(end.y - start.y, end.x - start.x);
-            ctx.beginPath();
-            ctx.moveTo(end.x, end.y);
-            ctx.lineTo(end.x - 12 * Math.cos(angle - Math.PI / 6), end.y - 12 * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(end.x - 12 * Math.cos(angle + Math.PI / 6), end.y - 12 * Math.sin(angle + Math.PI / 6));
-            ctx.fillStyle = color;
-            ctx.fill();
+                var angle = Math.atan2(end.y - start.y, end.x - start.x);
+                ctx.beginPath();
+                ctx.moveTo(end.x, end.y);
+                ctx.lineTo(end.x - 12 * Math.cos(angle - Math.PI / 6), end.y - 12 * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(end.x - 12 * Math.cos(angle + Math.PI / 6), end.y - 12 * Math.sin(angle + Math.PI / 6));
+                ctx.fillStyle = color;
+                ctx.fill();
+            }, 100);
         }
 
         function clearArrows() {
+            pendingArrow = null;
             var canvas = document.getElementById('arrow-canvas');
             if (canvas) {
                 var ctx = canvas.getContext('2d');
@@ -821,7 +834,12 @@
         }
 
         window.addEventListener('resize', function() {
-            if (board) board.resize();
+            if (board) {
+                board.resize();
+                if(pendingArrow) {
+                    drawArrow(pendingArrow.fromSq, pendingArrow.toSq, pendingArrow.color, pendingArrow.width, pendingArrow.isMulti);
+                }
+            }
         });
     </script>
 </body>
