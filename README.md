@@ -323,7 +323,7 @@
                 <div class="instruction-box" id="instructionText">جاري تحميل التوجيهات...</div>
                 <div id="status" class="status-msg"></div>
                 <div class="game-btns">
-                    <button class="action-btn secondary-btn" onclick="resetOpeningGame()">إعادة التدريب 🔄</button>
+                    <button class="action-btn secondary-btn" id="actionBtnMain" onclick="resetOpeningGame()">إعادة التدريب 🔄</button>
                 </div>
             </div>
         </div>
@@ -331,15 +331,15 @@
         <!-- تبويب الأساسيات -->
         <div id="tab-foundations" class="tab-content">
             <div class="section-header">تعلم أساسيات وحركة القطع منفردة</div>
-            <p style="color: #8b949e; font-size: 0.85rem; margin: 0 0 10px 0;">اختر القطعة لمعاينة حركتها التفاعلية والأسهم التوجيهية:</p>
+            <p style="color: #8b949e; font-size: 0.85rem; margin: 0 0 10px 0;">اختر القطعة لمعاينة حركتها التفاعلية وتحريكها بنفسك:</p>
             
             <div class="pieces-grid">
-                <div class="piece-btn" onclick="startFoundationPiece('king')">👑 <span>الملك</span></div>
-                <div class="piece-btn" onclick="startFoundationPiece('queen')">♕ <span>الوزير</span></div>
-                <div class="piece-btn" onclick="startFoundationPiece('rook')">♜ <span>القلعة</span></div>
-                <div class="piece-btn" onclick="startFoundationPiece('bishop')">♝ <span>الفيل</span></div>
-                <div class="piece-btn" onclick="startFoundationPiece('knight')">♞ <span>الحصان</span></div>
-                <div class="piece-btn" onclick="startFoundationPiece('pawn')">♟ <span>البيدق</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('king')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wK.png" width="28"> <span>الملك</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('queen')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wQ.png" width="28"> <span>الوزير</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('rook')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wR.png" width="28"> <span>القلعة</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('bishop')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wB.png" width="28"> <span>الفيل</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('knight')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wN.png" width="28"> <span>الحصان</span></div>
+                <div class="piece-btn" onclick="startFoundationPiece('pawn')"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wP.png" width="28"> <span>البيدق</span></div>
             </div>
         </div>
 
@@ -347,7 +347,7 @@
         <div id="tab-endgames" class="tab-content">
             <div class="section-header">تحديات كش مات بسيطة</div>
             <div class="cards-container">
-                <div class="opening-card">
+                <div class="opening-card" onclick="alert('قريباً جداً تحديات النهايات المتقدمة!')">
                     <div class="card-info">
                         <h4>مات القلعتين (Two Rooks Mate)</h4>
                         <p>كيف تحاصر الملك الخصم في الصف الأخير بطريقة منظمة.</p>
@@ -374,7 +374,7 @@
         <div id="tab-settings" class="tab-content">
             <div class="section-header">لوحة تحكم النظام (Terminal)</div>
             <div class="terminal-box">
-                > System init: <span>ChessCraft v3.3 (Extended)</span><br>
+                > System init: <span>ChessCraft v3.4 (Interactive)</span><br>
                 > Company: <span>MK CREATIVE AGENCY</span><br>
                 > Developer / Creator: <span>Mohamed Antar</span><br>
                 > Dedicated to: <span>Malek Antar (My Brother)</span><br>
@@ -428,9 +428,7 @@
                 appData = JSON.parse(saved);
                 let lastDate = appData.lastLoginDate;
                 
-                if (lastDate === today) {
-                    // نفس اليوم
-                } else {
+                if (lastDate !== today) {
                     let lastDateObj = new Date(lastDate);
                     let currentDateObj = new Date(today);
                     let diffTime = currentDateObj - lastDateObj;
@@ -438,11 +436,10 @@
 
                     if (diffDays === 1) {
                         appData.streak += 1;
-                        appData.lastLoginDate = today;
                     } else {
                         appData.streak = 1;
-                        appData.lastLoginDate = today;
                     }
+                    appData.lastLoginDate = today;
                 }
             } else {
                 appData.streak = 1;
@@ -593,13 +590,15 @@
         };
 
         var foundationPieces = {
-            king: { name: "حركة الملك (King)", fen: "8/8/8/3K4/8/8/8/8 w - - 0 1", arrows: [{from:"d5", to:"d6"}, {from:"d5", to:"e5"}, {from:"d5", to:"c5"}] },
-            queen: { name: "حركة الوزير (Queen)", fen: "8/8/8/3Q4/8/8/8/8 w - - 0 1", arrows: [{from:"d5", to:"d8"}, {from:"d5", to:"h5"}, {from:"d5", to:"a2"}] },
-            rook: { name: "حركة القلعة (Rook)", fen: "8/8/8/3R4/8/8/8/8 w - - 0 1", arrows: [{from:"d5", to:"d8"}, {from:"d5", to:"d1"}] },
-            bishop: { name: "حركة الفيل (Bishop)", fen: "8/8/8/3B4/8/8/8/8 w - - 0 1", arrows: [{from:"d5", to:"g8"}, {from:"d5", to:"a2"}] },
-            knight: { name: "حركة الحصان (Knight)", fen: "8/8/8/3N4/8/8/8/8 w - - 0 1", arrows: [{from:"d5", to:"e7"}, {from:"d5", to:"f6"}] },
-            pawn: { name: "حركة البيدق (Pawn)", fen: "8/8/4P3/8/8/8/8/8 w - - 0 1", arrows: [{from:"e6", to:"e5"}] }
+            king: { name: "حركة الملك (King)", fen: "8/8/8/3K4/8/8/8/8 w - - 0 1", hint: "تحرك الملك مربعاً واحداً في أي اتجاه.", arrows: [{from:"d5", to:"d6"}, {from:"d5", to:"e5"}, {from:"d5", to:"c5"}] },
+            queen: { name: "حركة الوزير (Queen)", fen: "8/8/8/3Q4/8/8/8/8 w - - 0 1", hint: "يتحرك الوزير أفقياً وعمودياً وبشكل مائل لأي عدد من المربعات.", arrows: [{from:"d5", to:"d8"}, {from:"d5", to:"h5"}, {from:"d5", to:"a2"}] },
+            rook: { name: "حركة القلعة (Rook)", fen: "8/8/8/3R4/8/8/8/8 w - - 0 1", hint: "تحرك القلعة أفقياً وعمودياً فقط.", arrows: [{from:"d5", to:"d8"}, {from:"d5", to:"d1"}] },
+            bishop: { name: "حركة الفيل (Bishop)", fen: "8/8/8/3B4/8/8/8/8 w - - 0 1", hint: "يتحرك الفيل بشكل مائل فقط.", arrows: [{from:"d5", to:"g8"}, {from:"d5", to:"a2"}] },
+            knight: { name: "حركة الحصان (Knight)", fen: "8/8/8/3N4/8/8/8/8 w - - 0 1", hint: "يتحرك الحصان على شكل حرف L ويمكنه قفز القطع.", arrows: [{from:"d5", to:"e7"}, {from:"d5", to:"f6"}] },
+            pawn: { name: "حركة البيدق (Pawn)", fen: "8/8/4P3/8/8/8/8/8 w - - 0 1", hint: "يتقدم البيدق خطوة للأمام (أو خطوتين في النقلة الأولى).", arrows: [{from:"e6", to:"e5"}] }
         };
+
+        var currentFoundationKey = null;
 
         window.addEventListener('load', function() {
             loadUserData();
@@ -660,6 +659,8 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('openingGameTitle').innerText = currentLine.name;
+            document.getElementById('actionBtnMain').innerText = "إعادة التدريب 🔄";
+            document.getElementById('actionBtnMain').onclick = resetOpeningGame;
             
             board.resize();
             board.position('start', false);
@@ -671,14 +672,17 @@
 
         function startFoundationPiece(pieceKey) {
             isFoundationMode = true;
+            currentFoundationKey = pieceKey;
             let pieceData = foundationPieces[pieceKey];
             game.load(pieceData.fen);
             
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('openingGameTitle').innerText = pieceData.name;
-            document.getElementById('instructionText').innerText = "هكذا تتحرك هذه القطعة على الرقعة كما توضح الأسهم الخضراء التلقائية.";
-            document.getElementById('status').innerText = "قسم الأساسيات التعليمي";
+            document.getElementById('instructionText').innerText = pieceData.hint;
+            document.getElementById('status').innerText = "جرّب تحريك القطعة بنفسك على الرقعة!";
+            document.getElementById('actionBtnMain').innerText = "إعادة وضع القطعة 🔄";
+            document.getElementById('actionBtnMain').onclick = () => startFoundationPiece(currentFoundationKey);
             
             board.orientation('white');
             board.resize();
@@ -785,13 +789,24 @@
         }
 
         function onDragStart (source, piece, position, orientation) {
-            if (isFoundationMode) return false;
-            if (!currentLine || currentStep >= currentLine.steps.length) return false;
             if (game.game_over()) return false;
+            
+            if (isFoundationMode) {
+                // في وضع الأساسيات، اسمح بتحريك القطعة الموجودة فقط
+                return true;
+            }
+
+            if (!currentLine || currentStep >= currentLine.steps.length) return false;
         }
 
         function onDrop (source, target) {
-            if (isFoundationMode) return 'snapback';
+            if (isFoundationMode) {
+                var move = game.move({ from: source, to: target, promotion: 'q' });
+                if (move === null) return 'snapback';
+                board.position(game.fen());
+                return;
+            }
+
             if (!currentLine || currentStep >= currentLine.steps.length) return 'snapback';
 
             var move = game.move({ from: source, to: target, promotion: 'q' });
